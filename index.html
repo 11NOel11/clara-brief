@@ -197,6 +197,17 @@ tr.ours td{font-weight:600}
 dl.ref{display:grid; grid-template-columns:minmax(110px,180px) minmax(0,1fr); gap:9px 18px; margin:0 0 14px; font:14.5px/1.5 var(--sans)}
 dl.ref dt{font-weight:600} dl.ref dd{margin:0}
 footer{max-width:680px; margin:56px auto 40px; padding-top:16px; border-top:1px solid var(--rule); font:13px/1.55 var(--sans); color:var(--muted)}
+.toc .tg{display:flex; flex-direction:column; margin-bottom:14px}
+.toc .tg span{font:500 11px/1.4 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.06em; margin:0 0 4px}
+.toc a.on{border-left-color:var(--ink)}
+.mtoc{display:none; max-width:680px; margin:8px auto 0; padding:14px 0; border-top:1px solid var(--ink); border-bottom:1px solid var(--rule); grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 24px; font:14px/1.5 var(--sans)}
+.mtoc .tg{display:flex; flex-direction:column}
+.mtoc .tg span{font:500 11px/1.4 var(--mono); color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px}
+.mtoc a{text-decoration:none; padding:3px 0}
+.tag b{color:var(--muted)!important}
+.stat:nth-child(odd) b{color:var(--ink)}
+details.deep > summary::before{border-color:var(--faint); color:var(--muted)}
+@media (max-width:1080px){.mtoc{display:grid}}
 @media (max-width:1080px){.wrap{grid-template-columns:minmax(0,1fr); max-width:680px} .wrap > article{grid-column:1} .toc{display:none}}
 @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))} .cards,.stages4{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .chain{grid-template-columns:repeat(2,minmax(0,1fr))} .atom{grid-template-columns:1fr}}
 @media (max-width:440px){.routes{grid-template-columns:minmax(0,1fr)} .cards,.stages4{grid-template-columns:minmax(0,1fr)} dl.ref{grid-template-columns:1fr; gap:2px}}
@@ -246,6 +257,12 @@ footer{max-width:680px; margin:56px auto 40px; padding-top:16px; border-top:1px 
 </div>
 </div>
 
+<div class="gut"><nav class="mtoc" aria-label="Contents">
+  <div class="tg"><span>The product</span><a href="#problem">The problem</a><a href="#try">Try it</a></div>
+  <div class="tg"><span>How it works</span><a href="#core">The rules</a><a href="#views">Privacy</a><a href="#audit">The record</a><a href="#rooms">Live rooms</a><a href="#edge">The front door</a><a href="#words">Words</a><a href="#care">Care</a></div>
+  <div class="tg"><span>The AI</span><a href="#ai">What it does</a><a href="#eval">How we tested it</a></div>
+  <div class="tg"><span>Evidence and limits</span><a href="#measures">Measuring</a><a href="#dp">Privacy in numbers</a><a href="#data">Data</a><a href="#tests">Tests</a><a href="#limits">Not done</a><a href="#ref">Reference</a></div>
+</nav></div>
 <div class="wrap gut">
 <article>
 
@@ -629,23 +646,10 @@ AI_EVAL_URL=http://127.0.0.1:3100 pnpm exec vitest run tests/lib/ai-eval.test.ts
 </article>
 
 <nav class="toc" aria-label="Contents">
-  <a href="#problem" style="--c:var(--teal)"><i></i>The problem</a>
-  <a href="#try" style="--c:var(--teal)"><i></i>Try it</a>
-  <a href="#core" style="--c:var(--teal)"><i></i>The rules</a>
-  <a href="#views" style="--c:var(--teal)"><i></i>Privacy</a>
-  <a href="#audit" style="--c:var(--teal)"><i></i>The record</a>
-  <a href="#rooms" style="--c:var(--teal)"><i></i>Live rooms</a>
-  <a href="#edge" style="--c:var(--teal)"><i></i>The front door</a>
-  <a href="#words" style="--c:var(--amber)"><i></i>Words</a>
-  <a href="#care" style="--c:var(--teal)"><i></i>Care</a>
-  <a href="#ai" style="--c:var(--violet)"><i></i>The AI</a>
-  <a href="#eval" style="--c:var(--violet)"><i></i>Testing the AI</a>
-  <a href="#measures" style="--c:var(--teal)"><i></i>Measuring</a>
-  <a href="#dp" style="--c:var(--teal)"><i></i>Privacy in numbers</a>
-  <a href="#data" style="--c:var(--amber)"><i></i>Data</a>
-  <a href="#tests" style="--c:var(--teal)"><i></i>Tests</a>
-  <a href="#limits" style="--c:var(--fail)"><i></i>Not done</a>
-  <a href="#ref" style="--c:var(--muted)"><i></i>Reference</a>
+  <div class="tg"><span>The product</span><a href="#problem">The problem</a><a href="#try">Try it</a></div>
+  <div class="tg"><span>How it works</span><a href="#core">The rules</a><a href="#views">Privacy</a><a href="#audit">The record</a><a href="#rooms">Live rooms</a><a href="#edge">The front door</a><a href="#words">Words</a><a href="#care">Care</a></div>
+  <div class="tg"><span>The AI</span><a href="#ai">What it does</a><a href="#eval">How we tested it</a></div>
+  <div class="tg"><span>Evidence and limits</span><a href="#measures">Measuring</a><a href="#dp">Privacy in numbers</a><a href="#data">Data</a><a href="#tests">Tests</a><a href="#limits">Not done</a><a href="#ref">Reference</a></div>
 </nav>
 </div>
 
