@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clara: Project Documentation</title>
+<meta name="description" content="Clara project documentation: what it does, how it is built, how it was tested, and what is not done yet.">
+<style>
+:root{--bg:#ffffff; --fg:#1a1a1a; --muted:#5f6368; --rule:#dadce0; --soft:#f5f6f7; --accent:#0b6f68}
+@media (prefers-color-scheme: dark){:root{--bg:#121314; --fg:#e8eaed; --muted:#a0a4a8; --rule:#3a3d40; --soft:#1d1f21; --accent:#4cc2b4; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--fg); font:16.5px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif}
+main{max-width:780px; margin:0 auto; padding:32px max(16px, env(safe-area-inset-left,0px)) 64px max(16px, env(safe-area-inset-right,0px))}
+h1{font-size:30px; line-height:1.2; margin:0 0 6px}
+h2{font-size:22px; margin:40px 0 10px; padding-top:12px; border-top:1px solid var(--rule)}
+h3{font-size:17px; margin:22px 0 6px}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px; padding-left:22px} li{margin-bottom:4px}
+a{color:var(--accent)}
+.meta{color:var(--muted); margin:0 0 14px}
+.links a{margin-right:16px}
+table{border-collapse:collapse; width:100%; margin:8px 0 16px; font-size:15px}
+th,td{border:1px solid var(--rule); padding:7px 9px; text-align:left; vertical-align:top}
+th{background:var(--soft)}
+td.n{text-align:right; white-space:nowrap}
+.wrap{overflow-x:auto}
+code{font:13.5px/1.4 ui-monospace, Menlo, Consolas, monospace; background:var(--soft); padding:1px 4px; border-radius:3px; overflow-wrap:anywhere}
+pre{background:var(--soft); border:1px solid var(--rule); padding:10px 12px; overflow-x:auto; font:13px/1.5 ui-monospace, Menlo, Consolas, monospace}
+pre code{background:none; padding:0}
+.toc{background:var(--soft); border:1px solid var(--rule); padding:12px 16px; margin:16px 0}
+.toc ol{margin:4px 0 0}
+.note{border-left:3px solid var(--rule); padding:2px 0 2px 12px; color:var(--muted)}
+figure{margin:12px 0 18px} figcaption{font-size:14px; color:var(--muted); margin-top:6px}
+svg{width:100%; height:auto; display:block}
+svg .b{fill:var(--bg); stroke:var(--muted); stroke-width:1.2}
+svg .k{fill:var(--soft); stroke:var(--accent); stroke-width:2}
+svg text{font:12.5px -apple-system, "Segoe UI", Roboto, Arial, sans-serif; fill:var(--fg)}
+svg .s{font-size:11px; fill:var(--muted)}
+svg .l{stroke:var(--muted); stroke-width:1.4; fill:none}
+.ar{font-family:"Geeza Pro","Noto Naskh Arabic",Tahoma,sans-serif}
+footer{margin-top:40px; padding-top:12px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Clara: Project Documentation</h1>
+<p class="meta">Future Health Challenge, Statement 03 · Team parallelparadox · 15 November 2026 · version <code>v1-production-on-main</code> (<code>e5870fa</code>)</p>
+<p class="links"><a href="https://clara.q7m4v2k9orbit.workers.dev/en">Live prototype</a> <a href="../">Detailed documentation</a> <a href="../Clara-Technical-Documentation.pdf">PDF</a></p>
+
+<nav class="toc" aria-label="Contents"><strong>Contents</strong>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#problem">The problem</a></li>
+<li><a href="#how">How Clara works</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#privacy">Privacy and security</a></li>
+<li><a href="#ai">How AI is used</a></li>
+<li><a href="#testing">Testing and results</a></li>
+<li><a href="#data">Data and deployment</a></li>
+<li><a href="#limits">Limitations</a></li>
+<li><a href="#try">Try it and run it</a></li>
+</ol></nav>
+
+<h2 id="overview">1. Overview</h2>
+<p>Clara helps a couple understand a premarital genetic screening result. Each spouse gets a private explanation on their own phone, in Arabic or English. A genetics specialist decides when the result is released, after a counselling session, and Clara then helps the couple choose next steps and sends a referral. Every couple, result and clinician in the prototype is synthetic.</p>
+<table>
+<tr><th>Fact</th><th>Value</th></tr>
+<tr><td>Automated tests passing</td><td>494 (355 unit and property, 139 end-to-end)</td></tr>
+<tr><td>Leaks between spouses, in 2,000 random test cases</td><td>0</td></tr>
+<tr><td>Unsafe AI answers, 3 runs of 28 questions, rules first</td><td>0</td></tr>
+<tr><td>Edits to the audit record caught, out of 2,000 random edits</td><td>2,000</td></tr>
+<tr><td>Family-facing sentences signed by a clinician</td><td>0 of 613 (all are drafts)</td></tr>
+<tr><td>Points of Statement 03 built and tested</td><td>28 of 32</td></tr>
+</table>
+
+<h2 id="problem">2. The problem</h2>
+<ul>
+<li>Abu Dhabi's premarital screening now includes a genetic test. The result is about both spouses at once, and it is easy to misread.</li>
+<li>Whoever hears the result first is left explaining it to the other.</li>
+<li>"Carrier" does not mean "ill". A carrier is usually healthy; it matters when both spouses carry a change in the same gene, which means a 1 in 4 chance in each pregnancy. That is a chance, not a diagnosis.</li>
+</ul>
+<p>We set two rules: the software never shows one spouse something about the other that they have not agreed to share, and a person, never a model, stands behind every decision and every sentence.</p>
+
+<h2 id="how">3. How Clara works</h2>
+<ol>
+<li><strong>The lab reports a result.</strong> Clara records it. An at-risk result is held for the specialist, and the phones receive nothing new.</li>
+<li><strong>The specialist releases it.</strong> Only the specialist can release a held result, and only once a counselling session exists. If any other seat tries, the rules refuse and nothing changes.</li>
+<li><strong>Each spouse reads their own explanation.</strong> A spouse's phone receives only their own view. A carrier finding reaches the other spouse only if its owner chooses to share it.</li>
+<li><strong>Each spouse checks their understanding.</strong> A short comprehension check, answered in their own words, stays private to that spouse.</li>
+<li><strong>The couple choose what happens next.</strong> Options are shown unranked and in a shuffled order. Declining is a full option. Questions about cost, cover or faith go to a person.</li>
+<li><strong>A referral is sent and tracked.</strong> It carries only what the receiver needs and is tracked from sent to received, accepted, booked, attended and closed. In pregnancy it is marked urgent.</li>
+<li><strong>The programme office sees only counts.</strong> It sees how many couples understood, booked, were seen in time and were referred, with privacy noise added, and never what a couple chose.</li>
+</ol>
+<p>Relatives: Clara never names or stores a relative. Each spouse chooses for their own side: tell no one, pass on a letter, or ask a counsellor to make contact, which needs a completed comprehension check and a 72-hour cooling-off period.</p>
+
+<h2 id="architecture">4. Architecture</h2>
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-label="Devices send requests to a live room, which passes them to the case rules; the rules write the audit record and build one view per seat; the AI gateway sits beside the room.">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#888"/></marker></defs>
+<rect class="b" x="10" y="30" width="150" height="54" rx="6"/><text x="85" y="53" text-anchor="middle">Spouse phones (2)</text><text class="s" x="85" y="71" text-anchor="middle">Arabic or English</text>
+<rect class="b" x="10" y="110" width="150" height="54" rx="6"/><text x="85" y="133" text-anchor="middle">Clinic seats</text><text class="s" x="85" y="151" text-anchor="middle">specialist, doctor, lab, office</text>
+<rect class="b" x="205" y="70" width="150" height="54" rx="6"/><text x="280" y="93" text-anchor="middle">Live room</text><text class="s" x="280" y="111" text-anchor="middle">checks each seat's token</text>
+<rect class="k" x="400" y="70" width="150" height="54" rx="6"/><text x="475" y="93" text-anchor="middle">Case rules (core/)</text><text class="s" x="475" y="111" text-anchor="middle">every step happens here</text>
+<rect class="b" x="595" y="70" width="155" height="54" rx="6"/><text x="672" y="93" text-anchor="middle">Audit record</text><text class="s" x="672" y="111" text-anchor="middle">hashes, never content</text>
+<rect class="b" x="400" y="170" width="150" height="54" rx="6"/><text x="475" y="193" text-anchor="middle">Role views</text><text class="s" x="475" y="211" text-anchor="middle">one per seat, field by field</text>
+<rect class="b" x="205" y="170" width="150" height="54" rx="6" stroke-dasharray="4 3"/><text x="280" y="193" text-anchor="middle">AI gateway</text><text class="s" x="280" y="211" text-anchor="middle">7 tasks, rules first</text>
+<path class="l" d="M160 57 H182 V90 H203" marker-end="url(#a)"/><path class="l" d="M160 137 H182 V104 H203" marker-end="url(#a)"/>
+<path class="l" d="M355 97 H398" marker-end="url(#a)"/><path class="l" d="M550 97 H593" marker-end="url(#a)"/>
+<path class="l" d="M475 124 V168" marker-end="url(#a)"/>
+<path class="l" d="M400 205 H375 V242 H3 V57 H8" marker-end="url(#a)"/>
+<path class="l" d="M280 124 V168" stroke-dasharray="4 3"/>
+</svg>
+<figcaption>A request goes from a device to its live room, which checks the seat's signed token. The case rules apply the step only if a rule allows it and add an entry to the audit record. A view is then built for each seat, and each spouse's phone receives only its own. The AI gateway sits beside the room, not inside the rules.</figcaption>
+</figure>
+<div class="wrap"><table>
+<tr><th>Component</th><th>What it does</th><th>Where</th></tr>
+<tr><td>Web app</td><td>Next.js. The hosted copy runs on Cloudflare Workers; the same code runs as a Node server in Docker.</td><td><code>app/</code>, <code>cloudflare/worker.ts</code></td></tr>
+<tr><td>Case rules</td><td>Decide what may happen next, who may see what, and what is recorded. A case is a list of events; no network, no clock.</td><td><code>core/machine.ts</code>, <code>core/case-doc.ts</code></td></tr>
+<tr><td>Role views</td><td>Build one view per role, copying only the fields that role may see.</td><td><code>core/view.ts</code></td></tr>
+<tr><td>Audit record</td><td>A SHA-256 hash chain of who saw what kind of thing. It stores hashes, never content.</td><td><code>core/audit.ts</code></td></tr>
+<tr><td>Live rooms</td><td>Put one case on several devices. Each seat has a signed token. Hosted in a Cloudflare Durable Object.</td><td><code>lib/room/</code>, <code>cloudflare/rooms.ts</code></td></tr>
+<tr><td>Word library</td><td>613 fixed sentences in English and Arabic, versioned and hashed. A model never writes one.</td><td><code>content/</code></td></tr>
+<tr><td>AI gateway</td><td>Seven narrow tasks with checked answers (section 6).</td><td><code>lib/ai/</code></td></tr>
+<tr><td>Programme figures</td><td>Counts for the programme office, released with differential privacy.</td><td><code>core/programme.ts</code>, <code>core/release.ts</code></td></tr>
+</table></div>
+<p class="note">Mocked today and labelled on screen: UAE PASS, the M42 lab report and the Malaffi referral (FHIR).</p>
+
+<h2 id="privacy">5. Privacy and security</h2>
+<ul>
+<li><strong>Each spouse's view is built on the server.</strong> A field a spouse may not see is never copied into their view, so it never reaches their phone. A property test builds 2,000 random cases and fails if any view holds a field its role may not see.</li>
+<li><strong>Staff seats differ in the prototype.</strong> The specialist, family doctor and lab seats receive the case and build their view on the device. That is acceptable for synthetic cases; a real deployment would build staff views on the server and add clinician sign-in.</li>
+<li><strong>The audit record cannot be edited quietly.</strong> Each entry holds the previous entry's hash, so any edit breaks the chain. All 2,000 random one-byte edits in the test were caught.</li>
+<li><strong>Seats cannot impersonate each other.</strong> Each request carries a token signed with HMAC-SHA256 (64 bits), checked in constant time. Rooms are deleted after 3 hours idle or 12 hours at most.</li>
+<li><strong>Programme counts hide any single couple.</strong> Counts get calibrated random noise (Laplace, 95% of it within ±10), and groups under 10 are withheld.</li>
+<li><strong>Little leaves the clinic.</strong> A calendar entry says only "Appointment". The referral carries no gene, no answers and nothing about relatives. Cloudflare request logging and metrics are off.</li>
+</ul>
+
+<h2 id="ai">6. How AI is used</h2>
+<p>Clara works without a model. Models help with seven narrow tasks; every answer is checked, and anything doubtful goes to a person. A model never writes the words a family reads and never decides a step of a case.</p>
+<div class="wrap"><table>
+<tr><th>Task</th><th>What the model does</th><th>What it never does</th></tr>
+<tr><td>Ask Clara</td><td>Picks one approved answer</td><td>Write an answer</td></tr>
+<tr><td>Comprehension</td><td>Reads a spouse's own words</td><td>Show them to the partner</td></tr>
+<tr><td>Lab intake</td><td>Copies six fields from a report</td><td>Invent a field</td></tr>
+<tr><td>Care agent</td><td>Proposes the next step</td><td>Release a result</td></tr>
+<tr><td>Session brief</td><td>Drafts notes for the specialist</td><td>–</td></tr>
+<tr><td>Coach</td><td>Writes rehearsal notes for counsellors</td><td>–</td></tr>
+<tr><td>Arabic check</td><td>Flags drafts for a reviewer</td><td>Approve a sentence</td></tr>
+</table></div>
+<p>For Ask Clara, rules run first: questions about cost, cover or faith always go to a person, and medical-detail and family questions do when no approved answer fits. The model then picks one topic from the allowed menu, and the answer is used only if the topic is on the menu and the model's confidence is at least 0.6. Otherwise the spouse is offered a counsellor, who sees a heading such as "Cost and cover", never the words typed.</p>
+<p>Models: K2 Think Horizon (MBZUAI) first, OpenAI as the fallback. Every task has a rule-based fallback, and one setting turns AI off for everyone.</p>
+
+<h2 id="testing">7. Testing and results</h2>
+<p>494 automated tests: 355 unit and property tests (Vitest, fast-check) and 139 end-to-end tests (Playwright), run on a production build in English and Arabic on a 375-pixel phone screen. A property test states a rule and checks it on thousands of generated cases.</p>
+<div class="wrap"><table>
+<tr><th>Property checked</th><th>Random cases</th><th>Result</th></tr>
+<tr><td>The invitation is the same whatever the lab found</td><td class="n">10,000</td><td>identical</td></tr>
+<tr><td>Nothing reaches a phone while a result is held</td><td class="n">2,000</td><td>0 disclosures</td></tr>
+<tr><td>A spouse never receives the other's answers, questions, picks, consents or carrier findings</td><td class="n">2,000</td><td>0 disclosures</td></tr>
+<tr><td>X-linked: his phone shows nothing from her result until she shares</td><td class="n">2,000</td><td>0 disclosures</td></tr>
+<tr><td>The family doctor never sees a gene, an at-risk kind, an answer or a sharing choice</td><td class="n">2,000</td><td>0 disclosures</td></tr>
+<tr><td>Any one-byte edit to the audit record is detected</td><td class="n">2,000</td><td>every one</td></tr>
+</table></div>
+<h3>AI test</h3>
+<p>28 questions typed the way people type, in English, Gulf Arabic and Modern Standard Arabic. Seven must go to a person; answering one of those counts as unsafe. Runs of 15 November:</p>
+<div class="wrap"><table>
+<tr><th>Setup</th><th>Correct topic (of 28)</th><th>Unsafe answers</th></tr>
+<tr><td>Keyword rules, no model (1 run)</td><td>24</td><td>0</td></tr>
+<tr><td>K2 Think Horizon alone (3 runs)</td><td>27, 26, 26</td><td>1, 2, 1</td></tr>
+<tr><td>Rules first, then K2 (3 runs)</td><td>27, 28, 28</td><td>0, 0, 0</td></tr>
+<tr><td>Rules first, then OpenAI (3 runs)</td><td>27, 27, 27</td><td>0, 0, 0</td></tr>
+</table></div>
+<p class="note">The rules were built using these same 28 questions, so a fresh question set is the next test.</p>
+
+<h2 id="data">8. Data and deployment</h2>
+<div class="wrap"><table>
+<tr><th></th><th>Today (prototype)</th><th>Pilot (proposed)</th></tr>
+<tr><td>Data</td><td>Every couple, genome, lab report and clinician is invented (licences start <code>SYN-</code>).</td><td>Real data only after a data protection impact assessment.</td></tr>
+<tr><td>Hosting</td><td>Cloudflare Workers; rooms delete themselves within 12 hours.</td><td>Hosted in the UAE, with models hosted in the UAE.</td></tr>
+<tr><td>Governance</td><td>Clinical wording is draft until a genetics professional signs it.</td><td>Department of Health and the centre as controller, under Federal Law No. 2 of 2019 and DoH policy.</td></tr>
+<tr><td>What a model sees</td><td>One typed question or a lab report's text, never a name.</td><td>–</td></tr>
+</table></div>
+<p>No special hardware: everything runs in an ordinary browser. Clara explains and connects; it does not measure, diagnose or treat.</p>
+
+<h2 id="limits">9. Limitations</h2>
+<ul>
+<li>Synthetic data and mocked partners only; all 613 sentences are unsigned; thresholds are not yet agreed with the Department of Health.</li>
+<li>The AI result is on the questions the rules were built from; the fine-tuned model has no results yet.</li>
+<li>Whether Clara improves understanding is untested until the study runs after ethics approval.</li>
+<li>No Malaffi conformance test, patient record, identity provider or clinician sign-in; staff seats in a room hold the case.</li>
+<li>No load test at programme scale and no outside security review of the room protocol.</li>
+<li>Not a medical device; not cleared for clinical use.</li>
+</ul>
+
+<h2 id="try">10. Try it and run it</h2>
+<div class="wrap"><table>
+<tr><th>Page</th><th>What it shows</th></tr>
+<tr><td><code>/en/demo</code></td><td>Guided demo: one couple from consent to referral in about a minute</td></tr>
+<tr><td><code>/en/live</code></td><td>Live room: one case across real phones, joined by QR code</td></tr>
+<tr><td><code>/en/phone</code></td><td>Spouse app</td></tr>
+<tr><td><code>/en/console</code></td><td>Genetics specialist</td></tr>
+<tr><td><code>/en/doctor</code>, <code>/en/lab</code>, <code>/en/programme</code></td><td>Family doctor, lab desk, programme office</td></tr>
+<tr><td><code>/en/rehearsal</code></td><td>Counsellor practice on synthetic couples</td></tr>
+<tr><td><code>/en/evidence</code>, <code>/en/safeguards</code></td><td>Each point of Statement 03 mapped to a test; privacy checks in your browser</td></tr>
+</table></div>
+<p>Every page also exists in Arabic under <code>/ar/</code>. To run it locally:</p>
+<pre><code>pnpm install
+pnpm dev --port 3100 -H 127.0.0.1     # http://127.0.0.1:3100/en
+pnpm test                             # 355 unit and property tests
+pnpm e2e                              # 139 end-to-end tests
+docker compose up                     # one container: http://127.0.0.1:3000/en</code></pre>
+
+<footer>Figures come from the repository's README, tests and saved eval runs as of 15 November 2026. More detail on every section is in the <a href="../">detailed documentation</a> and the <a href="../Clara-Technical-Documentation.pdf">PDF</a>.</footer>
+</main>
+</body>
+</html>
